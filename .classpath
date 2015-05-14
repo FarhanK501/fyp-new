@@ -14,6 +14,6 @@
 		</accessrules>
 	</classpathentry>
 	<classpathentry kind="src" path="/AmbilWarna"/>
-	<classpathentry exported="true" kind="lib" path="E:/FinalYearProject/AmbilWarna/bin/ambilwarna.jar" sourcepath="/AmbilWarna/src"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/OpenCV Library - 2.4.8"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
