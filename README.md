@@ -4,6 +4,7 @@
 BS Final Year Project
 
 # Project Overview
+![alt tag](https://github.com/FarhanK501/fyp-new/blob/master/Project%20Summary.png)
 
 # Members
 Naveed Baloch
@@ -15,7 +16,7 @@ Dr. Aarij Hussaan Mehmood
 
 (Prof. at Iqra University)
 
-# -----------------------------------------------------------------
+# ----------------------------------------------------------
 # Cloning project 
 https://github.com/FarhanK501/fyp-new.git
 
