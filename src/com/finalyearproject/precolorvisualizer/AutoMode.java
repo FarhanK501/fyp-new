@@ -510,11 +510,30 @@ public class AutoMode extends Activity{
 	 * User can select color from it
 	 */
 	protected void ColorPicker() {
-		AmbilWarnaDialog dg = new AmbilWarnaDialog(this, Color.BLACK, true,
+		AmbilWarnaDialog pickerDialog = new AmbilWarnaDialog(this, Color.BLACK, true,
 				new OnAmbilWarnaListener() {
 					@Override
 					public void onOk(AmbilWarnaDialog dialog, int colors) {
 						replacementColor = colors;
+						
+						// we are applying colors to those area where white color isn't present
+						// but what if user choose white color?
+						// we should take care of that and little bit tinkering of white color
+						//wouldn't hurt much
+						int color = (int)Long.parseLong(String.valueOf(replacementColor), 16);
+						int r = (color >> 16) & 0xFF;
+						int g = (color >> 8) & 0xFF;
+						int b = (color >> 0) & 0xFF;
+						
+						if( replacementColor == Color.WHITE ){
+							
+							replacementColor = Color.parseColor("#fefefe");
+							
+						} //else {
+							//by this we can add default transparency to applying color because
+							// in some mobile we can't show proper color picker dialog
+							//replacementColor = Color.argb(10, r, g, b);
+						//}
 
 					}
 
@@ -527,7 +546,7 @@ public class AutoMode extends Activity{
 					}
 				});
 
-		dg.show();
+		pickerDialog.show();
 	}
 
 	/**
