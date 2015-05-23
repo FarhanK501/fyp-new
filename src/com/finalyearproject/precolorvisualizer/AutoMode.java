@@ -72,7 +72,7 @@ public class AutoMode extends Activity{
 	 * and last point where we done fillin' color.
 	 */
 	Bitmap flood1, cannys, flood11, holdLastPic, white, black, laplac
-	, threshold;
+	, threshold, sobel;
 	
 	/**
 	 * The whole layout where we are showing our images and stuff
@@ -146,21 +146,25 @@ public class AutoMode extends Activity{
 		
 		// Showing a dialog with color chooser
 		case R.id.SagColPic:
+			
 			ColorPicker();
 			break;
 		
 		// clearing edges that was drawn before
 		case R.id.segClearFrontView:
+			
 			clearEdge();
 			break;
 		
 		// saving image in gallery
 		case R.id.segSave:
+			
 			saveImage();
 			break;
 		
 		// a dialog with two buttons, one for camera, one for gallery
 		case R.id.SegGal:
+			
 			showOption();
 			break;
 
@@ -168,23 +172,29 @@ public class AutoMode extends Activity{
 		case R.id.segCanny:
 
 			AutoApplyCanny( bmpToBeSegmented );
-			
 			break;
 			
-		// applying laplcian
+		// applying laplacian
 		case R.id.segLap:
 
-			applyLaplacian( bmpToBeSegmented );
-			
+			applyLaplacian( bmpToBeSegmented );			
 			break;
 			
-		// applying simplet threshold
+		// applying simple threshold
 		case R.id.segThreshold:
+			
 			thresholding( bmpToBeSegmented );
+			break;
+			
+		//applying sobel image segmentation
+		case R.id.segSobel:
+			
+			sobel(bmpToBeSegmented);
 			break;
 		
 		// handle leakage of memory
 		default:
+			
 			backView.setDrawingCacheEnabled( false );
 			bmpToBeSegmented.recycle();
 			
@@ -294,6 +304,17 @@ public class AutoMode extends Activity{
 		new ThresholdTechnique().execute();
 	}
 	
+	/* Applying Sobel
+	 * @param bm
+	 * @param x
+	 * @param y
+	 */
+	private void sobel(Bitmap galleryBmp) {
+		
+		sobel = galleryBmp;
+		new SobelTechnique().execute();
+	}
+	
 	/**
 	 * Here we are drawing a selected segment with the 
 	 * selected color
@@ -380,6 +401,25 @@ public class AutoMode extends Activity{
 		return bmp;
 	}
 	
+	
+	/**
+	 * applying thresholding
+	 * @param bmp
+	 * @return segmented bitmap
+	 */
+	private Bitmap applySobel(Bitmap bmp) {
+		Bitmap op = galleryBmp.copy(Config.ARGB_8888, true);
+		Mat threshMat = new Mat(op.getWidth(), op.getHeight(), CvType.CV_8UC4);
+		Utils.bitmapToMat(op, threshMat);
+		Imgproc.cvtColor(threshMat, threshMat, Imgproc.COLOR_BGRA2GRAY);
+		Imgproc.threshold(threshMat, threshMat, 100, 255, Imgproc.THRESH_OTSU);
+		Imgproc.cvtColor(threshMat, threshMat, Imgproc.COLOR_GRAY2BGRA);
+		Utils.matToBitmap(threshMat, op);
+		bmp = op;
+		
+		return bmp;
+	}
+	
 
 	/**
 	 * When new intent started with some specific information
@@ -389,13 +429,18 @@ public class AutoMode extends Activity{
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (resultCode == RESULT_OK) {
 			switch (requestCode) {
+			// gallery request
 			case GALLERY_REQUEST:
+				
 				onButtonPressed(data.getData());
-
 				break;
+				
+			// camera request
 			case CAMERA_REQUEST:
+				
 				onButtonPressed(data.getData());
 				break;
+				
 			}
 		}
 	}
@@ -465,11 +510,30 @@ public class AutoMode extends Activity{
 	 * User can select color from it
 	 */
 	protected void ColorPicker() {
-		AmbilWarnaDialog dg = new AmbilWarnaDialog(this, Color.BLACK, true,
+		AmbilWarnaDialog pickerDialog = new AmbilWarnaDialog(this, Color.BLACK, true,
 				new OnAmbilWarnaListener() {
 					@Override
 					public void onOk(AmbilWarnaDialog dialog, int colors) {
 						replacementColor = colors;
+						
+						// we are applying colors to those area where white color isn't present
+						// but what if user choose white color?
+						// we should take care of that and little bit tinkering of white color
+						//wouldn't hurt much
+						int color = (int)Long.parseLong(String.valueOf(replacementColor), 16);
+						int r = (color >> 16) & 0xFF;
+						int g = (color >> 8) & 0xFF;
+						int b = (color >> 0) & 0xFF;
+						
+						if( replacementColor == Color.WHITE ){
+							
+							replacementColor = Color.parseColor("#fefefe");
+							
+						} //else {
+							//by this we can add default transparency to applying color because
+							// in some mobile we can't show proper color picker dialog
+							//replacementColor = Color.argb(10, r, g, b);
+						//}
 
 					}
 
@@ -482,7 +546,7 @@ public class AutoMode extends Activity{
 					}
 				});
 
-		dg.show();
+		pickerDialog.show();
 	}
 
 	/**
@@ -569,7 +633,8 @@ public class AutoMode extends Activity{
 
 		@Override
 		protected void onPreExecute() {
-			currentProgress.setTitle(" Applying Canny. Please Wait...");
+			currentProgress.setTitle(" Please Wait...");
+			currentProgress.setMessage(" While Applying Canny. ");
 			currentProgress.setCancelable( false );
 			currentProgress.show();
 		}		
@@ -628,7 +693,8 @@ public class AutoMode extends Activity{
 
 		@Override
 		protected void onPreExecute() {
-			currentProgress.setTitle(" Applying Canny. Please Wait...");
+			currentProgress.setTitle(" Please Wait...");
+			currentProgress.setMessage("While Applying Laplacian Edge Detection");
 			currentProgress.setCancelable( false );
 			currentProgress.show();
 		}				
@@ -687,12 +753,72 @@ public class AutoMode extends Activity{
 
 		@Override
 		protected void onPreExecute() {
-			currentProgress.setTitle(" Applying Simple Edge Detection. Please Wait...");
+			currentProgress.setTitle(" Please Wait...");
+			currentProgress.setMessage(" While Applying Simple Edge Detection");
 			currentProgress.setCancelable( false );
 			currentProgress.show();
 		}		
 	}
 	
+	
+	/**
+	 * 
+	 * @author Farhan Khan
+	 * A sub Async class for applying canny
+	 * in the background, so screen wont hang again
+	 * also is a good practice to show that some background
+	 * Stuff is going on so user wont feel lag or irritate
+	 */
+	class SobelTechnique extends AsyncTask<Void, Void, Void>{
+
+		@Override
+		protected Void doInBackground(Void... arg0) {
+			sobel = galleryBmp;
+			sobel = sobel.copy(Config.ARGB_8888, true);
+			sobel = applySobel(sobel);
+
+			for (int i = 0; i < sobel.getWidth(); i++) {
+				for (int j = 0; j < sobel.getHeight(); j++) {
+					if (sobel.getPixel(i, j) == Color.BLACK) {
+						sobel.setHasAlpha(true);
+						sobel.setPixel(i, j, Color.TRANSPARENT);
+					}
+
+				}
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			currentProgress.hide();
+			frontView.setImageBitmap(sobel);
+			flood1 = sobel.copy(Config.ARGB_8888, true);
+
+			frontView.setOnTouchListener(new OnTouchListener() {
+
+				@Override
+				public boolean onTouch(View arg0, MotionEvent arg1) {
+					int x, y;
+					x = (int) arg1.getX();
+					y = (int) arg1.getY();
+
+					sendToFill(flood1, x, y);
+
+					return false;
+				}
+			});
+
+		}
+
+		@Override
+		protected void onPreExecute() {
+			currentProgress.setTitle(" Please Wait...");
+			currentProgress.setMessage("While Applying Sobel Edge Detection. ");
+			currentProgress.setCancelable( false );
+			currentProgress.show();
+		}		
+	}
 	
 	
 	/**
@@ -733,7 +859,8 @@ public class AutoMode extends Activity{
 			frontView.setDrawingCacheEnabled(true);
 			white = frontView.getDrawingCache();
 			
-			currentProgress.setTitle(" Clearing Edges. Please Wait...");
+			currentProgress.setTitle(" Please Wait...");
+			currentProgress.setMessage("While Clearing Edges. ");
 			currentProgress.setCancelable( false );
 			currentProgress.show();
 		}
@@ -770,7 +897,7 @@ public class AutoMode extends Activity{
 			view.setDrawingCacheEnabled(true);
 			resultImage = view.getDrawingCache();
 			String root = Environment.getExternalStorageDirectory()
-					.getAbsolutePath() + "/Pictures".toString();
+					.getAbsolutePath();
 			File myDir = new File(root + "/PreColorResults");
 			myDir.mkdirs();	
 			
@@ -808,14 +935,15 @@ public class AutoMode extends Activity{
 			currentProgress.hide();
 			
 			Toast.makeText(getBaseContext(),
-					"Image Saved at/sdCard/Pictures/PreColorResults/",
+					"Image Saved at/sdcard/PreColorResults/",
 					Toast.LENGTH_SHORT).show();
 		}
 
 		@Override
 		protected void onPreExecute() {
 			
-			currentProgress.setTitle(" Saving Image to Gallery. Please Wait...");
+			currentProgress.setTitle(" Please Wait...");
+			currentProgress.setMessage("While Saving Image to Gallery");
 			currentProgress.setCancelable( false );
 			currentProgress.show();
 						
