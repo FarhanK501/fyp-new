@@ -520,10 +520,12 @@ public class AutoMode extends Activity{
 						// but what if user choose white color?
 						// we should take care of that and little bit tinkering of white color
 						//wouldn't hurt much
-						int color = (int)Long.parseLong(String.valueOf(replacementColor), 16);
-						int r = (color >> 16) & 0xFF;
-						int g = (color >> 8) & 0xFF;
-						int b = (color >> 0) & 0xFF;
+						
+						// not needed currently
+						//int color = (int)Long.parseLong(String.valueOf(replacementColor), 16);
+						//int r = (color >> 16) & 0xFF;
+						//int g = (color >> 8) & 0xFF;
+						//int b = (color >> 0) & 0xFF;
 						
 						if( replacementColor == Color.WHITE ){
 							
