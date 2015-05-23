@@ -1,7 +1,7 @@
 # Pre Color Visualizer
 (previously knowns as CM Tool)
 
-BS Final Year Project
+BS CS Final Year Project
 
 # Project Overview
 ![alt tag](https://github.com/FarhanK501/fyp-new/blob/master/Project%20Summary.png)
@@ -23,6 +23,12 @@ https://github.com/FarhanK501/fyp-new.git
 Then set your push pull by
 
 git remote set-url https://github.com/FarhanK501/fyp-new.git
+
+We used OpenCv Library for edge detections..
+
+AmbilWarna Color picker library for choosing colors.
+
+You need to add those library in your project otherwise it won't Run.
 
 If you think you can contribute to project.
 
