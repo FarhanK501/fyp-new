@@ -42,3 +42,7 @@ Network Trash Folder
 Temporary Items
 .apdisk
 /.idea/
+
+
+#Eclipse Workspace and stuff ignore
+bin/
