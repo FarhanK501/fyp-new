@@ -1,0 +1,32 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/SagColPic"
+        android:icon="@drawable/clrpkricn"
+        android:showAsAction="always"/>
+    <item
+        android:id="@+id/SegGal"
+        android:icon="@drawable/gallery"
+        android:showAsAction="always"/>
+    <item
+        android:id="@+id/segSave"
+        android:icon="@drawable/savesave"
+        android:showAsAction="always"/>
+    <item
+        android:id="@+id/segClearFrontView"
+        android:title="Clear Edges"/>
+    <!--
+         <item
+        android:id="@+id/segCanny"
+        android:title="Canny"/>
+    
+          <item
+        android:id="@+id/segThreshold"
+        android:title="Simple Threshold"/>
+    
+         <item
+        android:id="@+id/segSobel"
+        android:title="Sobel"/>
+    -->
+
+</menu>
