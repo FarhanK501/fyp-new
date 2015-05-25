@@ -46,3 +46,5 @@ Temporary Items
 
 #Eclipse Workspace and stuff ignore
 bin/
+gen/
+

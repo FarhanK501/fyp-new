@@ -24,8 +24,8 @@
     <item
         android:id="@+id/segSobel"
         android:title="Sobel"/>
-    <item
+   <item
         android:id="@+id/segLap"
-        android:title="Laplacian"/>
+        android:title="Laplacian"/>
 
 </menu>
