@@ -243,21 +243,25 @@ containing a value of this type.
         public static final int any=0x7f040000;
         public static final int back=0x7f040001;
         public static final int backimageview=0x7f040016;
-        public static final int colorpicker=0x7f04001e;
+        public static final int colorpicker=0x7f040022;
         public static final int dImageView=0x7f040011;
         public static final int dImageViewFront=0x7f040012;
-        public static final int drawLine=0x7f04001f;
+        public static final int drawLine=0x7f040023;
         public static final int front=0x7f040002;
         public static final int frontimageview=0x7f040017;
-        public static final int openGallery=0x7f04001d;
+        public static final int openGallery=0x7f040021;
         public static final int relativity=0x7f040010;
+        public static final int segCanny=0x7f04001d;
         public static final int segClearFrontView=0x7f04001c;
+        public static final int segLap=0x7f040020;
         public static final int segSave=0x7f04001b;
+        public static final int segSobel=0x7f04001f;
+        public static final int segThreshold=0x7f04001e;
         public static final int testingmofosbutton=0x7f040014;
         public static final int testingmofosprogressBar1=0x7f040013;
         public static final int userCanvas=0x7f040018;
         public static final int userRelativity=0x7f040015;
-        public static final int userSave=0x7f040020;
+        public static final int userSave=0x7f040024;
     }
     public static final class integer {
         public static final int large_size=0x7f070002;
