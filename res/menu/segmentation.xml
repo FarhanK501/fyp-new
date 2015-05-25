@@ -15,18 +15,17 @@
     <item
         android:id="@+id/segClearFrontView"
         android:title="Clear Edges"/>
-    <!--
-         <item
+    <item
         android:id="@+id/segCanny"
         android:title="Canny"/>
-    
-          <item
+    <item
         android:id="@+id/segThreshold"
         android:title="Simple Threshold"/>
-    
-         <item
+    <item
         android:id="@+id/segSobel"
-        android:title="Sobel"/>
-    -->
+        android:title="Sobel"/>
+    <item
+        android:id="@+id/segLap"
+        android:title="Laplacian"/>
 
 </menu>
