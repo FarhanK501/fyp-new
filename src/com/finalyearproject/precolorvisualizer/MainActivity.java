@@ -12,7 +12,7 @@ public class MainActivity extends Activity {
 	int ActivityAcquirePicture = 1;
 	int count = 0;
 	AlertDialog.Builder builder;
-	private static final String TAG = "TAG";
+	public static final String PreColorTAG = "PRECOLORVISUALIZER : ";
 
 	// Load opencv Library
 	static {
