@@ -2,8 +2,6 @@ package com.finalyearproject.precolorvisualizer;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -21,7 +19,6 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore.Images;
@@ -35,103 +32,21 @@ import android.widget.Toast;
 
 @SuppressLint("NewApi") public class UserMode extends Activity {
 
-	/**
-	 * Fornt View
-	 * Image view where we draw new segments and color in it
-	 * it's just a reference layer where we apply color
-	 */
 	public static ImageView frontView;
-	
-	/**
-	 * A flag that will alter the icon of pencil at
-	 * the top of the menu
-	 * if true then we'll show user that he can now draw
-	 * segments
-	 * if false then user cannot draw on image
-	 */
 	public static boolean draw = false;
-	
-	/**
-	 * those are the bitmaps that will hold down the 
-	 * colored images and referenced images
-	 */
 	public static Bitmap cannyBmp, sendBmp;
-	
-	/**
-	 * Default Replacement color
-	 * we set it to white.
-	 * User can change it by opening color picker 
-	 * and change it by choosing other colors
-	 */
 	public static int replacementColor = Color.WHITE;
-	
-	/**
-	 * Color that will be applied on the new segments
-	 * 
-	 */
 	public static int targetColor;
-	
-	/**
-	 * Camera Request
-	 */
 	int ActivityAcquirePicture = 1;
-	
-	/**
-	 * Coordinates where user draw lines
-	 */
 	int xCord, yCord;
-	
-	/**
-	 * Path of the images that are got by camera or gallery
-	 */
 	Uri selectedImage, imageUri;
-	
-	/**
-	 * This imageview will show the actual image user
-	 * select from the gallery or camera..
-	 * we do not change in the image instead we 
-	 * change in the front view
-	 * Take it as background image
-	 */
 	ImageView backView;
-	
-	/**
-	 * Default bitmap
-	 */
 	Bitmap bmp;
-	
-	/**
-	 * Points where user started and ended drawing
-	 */
 	Point p = new Point();
-	
-	/**
-	 * A userModeDrawing class instance 
-	 */
 	UserModeDrawing umd;
-	
-	/**
-	 * parent view
-	 * It's hold down the current view we are seeing
-	 * so basically we get this view to save in our gallery
-	 */
-	private RelativeLayout userView;
-	
-	/**
-	 * Default Dialog
-	 */
+	public static RelativeLayout userView;
 	AlertDialog.Builder builder;
-	
-	/**
-	 * A progress Dialog
-	 * That is showing user that the currently we are
-	 * busy doing some thing so please wait
-	 */
-	ProgressDialog currentProgress;
 
-	/**
-	 * Requests for camera or gallery
-	 */
 	private final int SELECT_PICTURE = 100, CAMERA_REQUEST = 101;
 
 	@Override
@@ -163,7 +78,48 @@ import android.widget.Toast;
 			}
 			break;
 		case R.id.userSave:
-			new SaveCurrentImage().execute();
+			Toast.makeText(getBaseContext(),
+					"Image Saved at/sdCard/Pictures/PreColorResults/",
+					Toast.LENGTH_SHORT).show();
+
+			Bitmap resultImage;
+			resultImage = Bitmap.createBitmap(bmp);
+			resultImage.copy(Config.ARGB_8888, true);
+			userView.setDrawingCacheEnabled(true);
+			resultImage = userView.getDrawingCache();
+			String root = Environment.getExternalStorageDirectory()
+					.getAbsolutePath() + "/Pictures".toString();
+			File myDir = new File(root + "/PreColorResults");
+
+			myDir.mkdirs();
+
+			Random generator = new Random();
+			long n = 1000000;
+			n = generator.nextLong();
+			String fname = "Image-" + n + ".png";
+			File file = new File(myDir, fname);
+
+			Log.i("" + n, "" + file);
+			if (file.exists())
+				file.delete();
+			try {
+				FileOutputStream out = new FileOutputStream(file);
+				resultImage.compress(Bitmap.CompressFormat.PNG, 100, out);
+				sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
+						Uri.parse("file://"
+								+ Environment.getExternalStorageDirectory())));
+				out.flush();
+				out.close();
+				// userView.setDrawingCacheEnabled(false);
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				// Intent get = getIntent();
+				// finish();
+				// startActivity(get);
+			}
+			// ProgressBar pb = new ProgressBar(getBaseContext());
+
 			break;
 
 		}
@@ -221,9 +177,6 @@ import android.widget.Toast;
 		frontView.setScaleType(ScaleType.FIT_XY);
 		umd = (UserModeDrawing) findViewById(R.id.userCanvas);
 		userView = (RelativeLayout) findViewById(R.id.userRelativity);
-		
-		currentProgress = new ProgressDialog( UserMode.this );
-		currentProgress.setProgressStyle( ProgressDialog.STYLE_SPINNER );
 
 	}
 
@@ -288,88 +241,11 @@ import android.widget.Toast;
 		dg.show();
 	}
 
-	/**
-	 * On Back Press We need to move to first activity
-	 * where we started
-	 * Handling of back press button
-	 */
 	@Override
 	public void onBackPressed() {
 		this.finish();
 		startActivity(new Intent(this, MainActivity.class));
+
+		// super.onBackPressed();
 	}
-	
-	
-	/**
-	 * 
-	 * @author Farhan Khan
-	 * A sub Async Class to save image in gallery
-	 * while showing spinner until writing in the gallery
-	 * of image is not done
-	 */
-	class SaveCurrentImage extends AsyncTask<Void, Void, Void>{	
-		
-		@Override
-		protected Void doInBackground(Void... arg0) {
-			
-			Bitmap resultImage;
-			resultImage = Bitmap.createBitmap(bmp);
-			resultImage.copy(Config.ARGB_8888, true);
-			userView.setDrawingCacheEnabled(true);
-			resultImage = userView.getDrawingCache();
-			String root = Environment.getExternalStorageDirectory()
-					.getAbsolutePath();
-			File myDir = new File(root + "/PreColorResults");
-
-			myDir.mkdirs();
-
-			Random generator = new Random();
-			long n = 1000000;
-			n = generator.nextLong();
-			String fname = "Image-" + n + ".png";
-			File file = new File(myDir, fname);
-
-			Log.i("" + n, "" + file);
-			if (file.exists())
-				file.delete();
-			try {
-				FileOutputStream out = new FileOutputStream(file);
-				resultImage.compress(Bitmap.CompressFormat.PNG, 100, out);
-				sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
-						Uri.parse("file://"
-								+ Environment.getExternalStorageDirectory())));
-				out.flush();
-				out.close();
-				// userView.setDrawingCacheEnabled(false);
-			} catch (Exception e) {
-				e.printStackTrace();
-			} finally {
-				// Intent get = getIntent();
-				// finish();
-				// startActivity(get);
-			}
-			// ProgressBar pb = new ProgressBar(getBaseContext());
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute(Void result) {
-			currentProgress.hide();
-			
-			Toast.makeText(getBaseContext(),
-					"Image Saved at/sdcard/PreColorResults/",
-					Toast.LENGTH_SHORT).show();
-		}
-
-		@Override
-		protected void onPreExecute() {
-
-			currentProgress.setTitle(" Please Wait...");
-			currentProgress.setMessage("While Saving Image to Gallery");
-			currentProgress.setCancelable( false );
-			currentProgress.show();
-						
-		}
-	}
-
 }
