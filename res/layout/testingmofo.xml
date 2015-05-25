@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <ProgressBar
+        android:id="@+id/testingmofosprogressBar1"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="103dp"
+        android:layout_marginTop="170dp" />
+
+    <Button
+        android:id="@+id/testingmofosbutton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/testingmofosprogressBar1"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="62dp"
+        android:text="Show Em" />
+
+</RelativeLayout>

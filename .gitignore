@@ -41,8 +41,15 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+<<<<<<< HEAD
 /.idea/
 
 
 #Eclipse Workspace and stuff ignore
 bin/
+=======
+
+#Eclipse android workspace folders
+bin/
+gen/
+>>>>>>> newbranch
