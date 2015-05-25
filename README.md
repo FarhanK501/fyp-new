@@ -4,7 +4,7 @@
 BS CS Final Year Project
 
 # Project Overview
-![alt tag](https://github.com/FarhanK501/fyp-new/blob/master/res/drawable-hdpi/Project%20Summary.png)
+![alt tag](https://github.com/FarhanK501/fyp-new/blob/master/res/drawable-hdpi/projectsummary.png)
 
 # Members
 Naveed Baloch
