@@ -2,6 +2,8 @@ package com.finalyearproject.precolorvisualizer;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -19,6 +21,7 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore.Images;
@@ -46,6 +49,11 @@ import android.widget.Toast;
 	UserModeDrawing umd;
 	public static RelativeLayout userView;
 	AlertDialog.Builder builder;
+	
+	/**
+	 * Progress Bar that will be shown when app is busy
+	 */
+	ProgressDialog currentProgress;
 
 	private final int SELECT_PICTURE = 100, CAMERA_REQUEST = 101;
 
@@ -78,48 +86,9 @@ import android.widget.Toast;
 			}
 			break;
 		case R.id.userSave:
-			Toast.makeText(getBaseContext(),
-					"Image Saved at/sdCard/Pictures/PreColorResults/",
-					Toast.LENGTH_SHORT).show();
-
-			Bitmap resultImage;
-			resultImage = Bitmap.createBitmap(bmp);
-			resultImage.copy(Config.ARGB_8888, true);
-			userView.setDrawingCacheEnabled(true);
-			resultImage = userView.getDrawingCache();
-			String root = Environment.getExternalStorageDirectory()
-					.getAbsolutePath() + "/Pictures".toString();
-			File myDir = new File(root + "/PreColorResults");
-
-			myDir.mkdirs();
-
-			Random generator = new Random();
-			long n = 1000000;
-			n = generator.nextLong();
-			String fname = "Image-" + n + ".png";
-			File file = new File(myDir, fname);
-
-			Log.i("" + n, "" + file);
-			if (file.exists())
-				file.delete();
-			try {
-				FileOutputStream out = new FileOutputStream(file);
-				resultImage.compress(Bitmap.CompressFormat.PNG, 100, out);
-				sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
-						Uri.parse("file://"
-								+ Environment.getExternalStorageDirectory())));
-				out.flush();
-				out.close();
-				// userView.setDrawingCacheEnabled(false);
-			} catch (Exception e) {
-				e.printStackTrace();
-			} finally {
-				// Intent get = getIntent();
-				// finish();
-				// startActivity(get);
-			}
-			// ProgressBar pb = new ProgressBar(getBaseContext());
-
+			
+			new SaveCurrentImage().execute();
+			
 			break;
 
 		}
@@ -171,6 +140,8 @@ import android.widget.Toast;
 	}
 
 	private void initializer() {
+		currentProgress = new ProgressDialog( UserMode.this );
+		currentProgress.setProgressStyle( ProgressDialog.STYLE_SPINNER );
 		backView = (ImageView) findViewById(R.id.backimageview);
 		frontView = (ImageView) findViewById(R.id.frontimageview);
 		backView.setScaleType(ScaleType.FIT_XY);
@@ -247,5 +218,78 @@ import android.widget.Toast;
 		startActivity(new Intent(this, MainActivity.class));
 
 		// super.onBackPressed();
+	}
+	
+	
+	/**
+	 * 
+	 * @author Farhan Khan
+	 * Saving current Image on view whether it's edged
+	 * or just simple image. We just want to save the image.
+	 *
+	 */
+	class SaveCurrentImage extends AsyncTask<Void, Void, Void>{	
+		
+		@Override
+		protected Void doInBackground(Void... arg0) {
+			
+			
+			Bitmap resultImage;
+			resultImage = Bitmap.createBitmap( bmp );
+			resultImage.copy(Config.ARGB_8888, true);
+			userView.setDrawingCacheEnabled(true);
+			resultImage = userView.getDrawingCache();
+			String root = Environment.getExternalStorageDirectory()
+					.getAbsolutePath();
+			File myDir = new File(root + "/PreColorResults");
+			myDir.mkdirs();	
+			
+			Random generator = new Random();
+			long n = 1000000;
+			n = generator.nextLong();
+			String fname = "Image-" + n + ".png";
+			File file = new File(myDir, fname);
+
+			Log.i("" + n, "" + file);
+			if (file.exists())
+				file.delete();
+			try {
+				FileOutputStream out = new FileOutputStream(file);
+				resultImage.compress(Bitmap.CompressFormat.PNG, 100, out);
+				sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
+						Uri.parse("file://"
+								+ Environment.getExternalStorageDirectory())));
+				out.flush();
+				out.close();
+				// frontView.setDrawingCacheEnabled(false);
+				userView.setDrawingCacheEnabled(false);
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				// Intent get = getIntent();
+				// finish();
+				// startActivity(get);
+			}		
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			currentProgress.hide();
+			
+			Toast.makeText(getBaseContext(),
+					"Image Saved at/sdcard/PreColorResults/",
+					Toast.LENGTH_SHORT).show();
+		}
+
+		@Override
+		protected void onPreExecute() {
+			
+			currentProgress.setTitle(" Please Wait...");
+			currentProgress.setMessage("While Saving Image to Gallery");
+			currentProgress.setCancelable( false );
+			currentProgress.show();
+						
+		}
 	}
 }
