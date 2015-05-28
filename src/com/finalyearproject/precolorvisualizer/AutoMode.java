@@ -198,6 +198,7 @@ public class AutoMode extends Activity{
 
 			if( canApplySegmentation ){
 				AutoApplyCanny( bmpToBeSegmented );
+				canClearEdges = true;
 			}  else {
 				showToast(this, "Please Choose an image before segmentation");
 			}
@@ -209,6 +210,7 @@ public class AutoMode extends Activity{
 
 			if( canApplySegmentation ){
 				applyLaplacian( bmpToBeSegmented );	
+				canClearEdges = true;
 			}  else {
 				showToast(this, "Please Choose an image before segmentation");
 			}
@@ -219,6 +221,7 @@ public class AutoMode extends Activity{
 			
 			if( canApplySegmentation ){
 				thresholding( bmpToBeSegmented );
+				canClearEdges = true;
 			}  else {
 				showToast(this, "Please Choose an image before segmentation");
 			}
@@ -229,6 +232,7 @@ public class AutoMode extends Activity{
 			
 			if( canApplySegmentation ){
 				sobel(bmpToBeSegmented);
+				canClearEdges = true;
 			} else {
 				showToast(this, "Please Choose an image before segmentation");
 			}
