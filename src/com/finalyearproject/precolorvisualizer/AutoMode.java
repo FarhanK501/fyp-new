@@ -412,7 +412,8 @@ public class AutoMode extends Activity{
 		Mat threshMat = new Mat(op.getWidth(), op.getHeight(), CvType.CV_8UC4);
 		Utils.bitmapToMat(op, threshMat);
 		Imgproc.cvtColor(threshMat, threshMat, Imgproc.COLOR_BGRA2GRAY);
-		Imgproc.threshold(threshMat, threshMat, 100, 255, Imgproc.THRESH_OTSU);
+		//Imgproc.sobel(threshMat, threshMat, 100, 255, Imgproc.THRESH_OTSU);
+		Imgproc.Sobel(threshMat, threshMat, threshMat.depth(), 2, 2);
 		Imgproc.cvtColor(threshMat, threshMat, Imgproc.COLOR_GRAY2BGRA);
 		Utils.matToBitmap(threshMat, op);
 		bmp = op;
