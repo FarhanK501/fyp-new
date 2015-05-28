@@ -105,9 +105,25 @@ public class AutoMode extends Activity{
 	ProgressDialog currentProgress;
 	
 	/**
-	 * Handlder for thread and
+	 * A boolean flag that will allow users to Save current image.
+	 * Handling of a case where user didn't choose any image
+	 * and tries to save
 	 */
-	Handler handler;
+	private boolean canSaveImage = false;
+	
+	/**
+	 * A boolean flag that will use to handle the case where
+	 * user didn't choose any image neither he applied any 
+	 * segmentation
+	 */
+	private boolean canClearEdges = false;
+	
+	/**
+	 * A boolean flag that is use to handle the case where user
+	 * didn't choose any image tries to apply segmentation
+	 */
+	private boolean canApplySegmentation = false;
+	
 	
 	/**
 	 * A Toast Message that is appear
@@ -153,13 +169,22 @@ public class AutoMode extends Activity{
 		// clearing edges that was drawn before
 		case R.id.segClearFrontView:
 			
-			clearEdge();
+			if( canClearEdges ){
+				clearEdge();
+			} else {
+				showToast(this, "Please Apply segmentation");
+			}
+			
 			break;
 		
 		// saving image in gallery
 		case R.id.segSave:
 			
-			saveImage();
+			if( canSaveImage ){
+				saveImage();
+			}  else {
+				showToast(this, "Please Choose an image before saving");
+			}
 			break;
 		
 		// a dialog with two buttons, one for camera, one for gallery
@@ -171,25 +196,46 @@ public class AutoMode extends Activity{
 		// applying canny
 		case R.id.segCanny:
 
-			AutoApplyCanny( bmpToBeSegmented );
+			if( canApplySegmentation ){
+				AutoApplyCanny( bmpToBeSegmented );
+				canClearEdges = true;
+			}  else {
+				showToast(this, "Please Choose an image before segmentation");
+			}
+			
 			break;
 			
 		// applying laplacian
 		case R.id.segLap:
 
-			applyLaplacian( bmpToBeSegmented );			
+			if( canApplySegmentation ){
+				applyLaplacian( bmpToBeSegmented );	
+				canClearEdges = true;
+			}  else {
+				showToast(this, "Please Choose an image before segmentation");
+			}
 			break;
 			
 		// applying simple threshold
 		case R.id.segThreshold:
 			
-			thresholding( bmpToBeSegmented );
+			if( canApplySegmentation ){
+				thresholding( bmpToBeSegmented );
+				canClearEdges = true;
+			}  else {
+				showToast(this, "Please Choose an image before segmentation");
+			}
 			break;
 			
 		//applying sobel image segmentation
 		case R.id.segSobel:
 			
-			sobel(bmpToBeSegmented);
+			if( canApplySegmentation ){
+				sobel(bmpToBeSegmented);
+				canClearEdges = true;
+			} else {
+				showToast(this, "Please Choose an image before segmentation");
+			}
 			break;
 		
 		// handle leakage of memory
@@ -412,7 +458,8 @@ public class AutoMode extends Activity{
 		Mat threshMat = new Mat(op.getWidth(), op.getHeight(), CvType.CV_8UC4);
 		Utils.bitmapToMat(op, threshMat);
 		Imgproc.cvtColor(threshMat, threshMat, Imgproc.COLOR_BGRA2GRAY);
-		Imgproc.threshold(threshMat, threshMat, 100, 255, Imgproc.THRESH_OTSU);
+		//Imgproc.sobel(threshMat, threshMat, 100, 255, Imgproc.THRESH_OTSU);
+		Imgproc.Sobel(threshMat, threshMat, threshMat.depth(), 2, 2);
 		Imgproc.cvtColor(threshMat, threshMat, Imgproc.COLOR_GRAY2BGRA);
 		Utils.matToBitmap(threshMat, op);
 		bmp = op;
@@ -484,7 +531,7 @@ public class AutoMode extends Activity{
 	 * @param bm
 	 */
 	private void onGetImage(Bitmap bm) {
-
+		
 		if (bm.getWidth() > bm.getHeight()) {
 			Bitmap bMapRotate = null;
 			Matrix mat = new Matrix();
@@ -501,6 +548,9 @@ public class AutoMode extends Activity{
 					backView.getHeight(), true);
 			backView.setImageBitmap(bm);
 		}
+		
+		canApplySegmentation = true;
+		canSaveImage = true;
 
 		// AutoApplyCanny(galleryBmp);
 	}

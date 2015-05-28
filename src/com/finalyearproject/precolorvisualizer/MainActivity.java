@@ -65,9 +65,6 @@ public class MainActivity extends Activity {
 		AlertDialog alert = builder.create();
 
 		alert.show();
-//		 Intent i = new Intent(MainActivity.this, roughWork.class);
-//		 		startActivity(i);
-//	
 		}
 
 }
