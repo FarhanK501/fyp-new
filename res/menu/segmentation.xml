@@ -12,6 +12,8 @@
         android:id="@+id/segSave"
         android:icon="@drawable/savesave"
         android:showAsAction="always"/>
+   
+    <!-- 
     <item
         android:id="@+id/segClearFrontView"
         android:title="Clear Edges"/>
@@ -26,6 +28,6 @@
         android:title="Sobel"/>
    <item
         android:id="@+id/segLap"
-        android:title="Laplacian"/>
+        android:title="Laplacian"/> 	-->
 
 </menu>

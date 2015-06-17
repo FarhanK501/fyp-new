@@ -165,16 +165,16 @@ public class AutoMode extends Activity{
 			break;
 		
 		// clearing edges that was drawn before
-		case R.id.segClearFrontView:
-			
-			if( canClearEdges ){
-				clearEdge();
-			} else {
-				showToast(this, "Please Apply segmentation");
-			}
-			
-			break;
-		
+//		case R.id.segClearFrontView:
+//			
+//			if( canClearEdges ){
+//				clearEdge();
+//			} else {
+//				showToast(this, "Please Apply segmentation");
+//			}
+//			
+//			break;
+//		
 		// saving image in gallery
 		case R.id.segSave:
 			
@@ -192,49 +192,49 @@ public class AutoMode extends Activity{
 			break;
 
 		// applying canny
-		case R.id.segCanny:
-
-			if( canApplySegmentation ){
-				AutoApplyCanny( bmpToBeSegmented );
-				canClearEdges = true;
-			}  else {
-				showToast(this, "Please Choose an image before segmentation");
-			}
-			
-			break;
+//		case R.id.segCanny:
+//
+//			if( canApplySegmentation ){
+//				AutoApplyCanny( bmpToBeSegmented );
+//				canClearEdges = true;
+//			}  else {
+//				showToast(this, "Please Choose an image before segmentation");
+//			}
+//			
+//			break;
 			
 		// applying laplacian
-		case R.id.segLap:
-
-			if( canApplySegmentation ){
-				applyLaplacian( bmpToBeSegmented );	
-				canClearEdges = true;
-			}  else {
-				showToast(this, "Please Choose an image before segmentation");
-			}
-			break;
+//		case R.id.segLap:
+//
+//			if( canApplySegmentation ){
+//				applyLaplacian( bmpToBeSegmented );	
+//				canClearEdges = true;
+//			}  else {
+//				showToast(this, "Please Choose an image before segmentation");
+//			}
+//			break;
 			
 		// applying simple threshold
-		case R.id.segThreshold:
-			
-			if( canApplySegmentation ){
-				thresholding( bmpToBeSegmented );
-				canClearEdges = true;
-			}  else {
-				showToast(this, "Please Choose an image before segmentation");
-			}
-			break;
+//		case R.id.segThreshold:
+//			
+//			if( canApplySegmentation ){
+//				thresholding( bmpToBeSegmented );
+//				canClearEdges = true;
+//			}  else {
+//				showToast(this, "Please Choose an image before segmentation");
+//			}
+//			break;
 			
 		//applying sobel image segmentation
-		case R.id.segSobel:
-			
-			if( canApplySegmentation ){
-				sobel(bmpToBeSegmented);
-				canClearEdges = true;
-			} else {
-				showToast(this, "Please Choose an image before segmentation");
-			}
-			break;
+//		case R.id.segSobel:
+//			
+//			if( canApplySegmentation ){
+//				sobel(bmpToBeSegmented);
+//				canClearEdges = true;
+//			} else {
+//				showToast(this, "Please Choose an image before segmentation");
+//			}
+//			break;
 		
 		// handle leakage of memory
 		default:
@@ -293,8 +293,9 @@ public class AutoMode extends Activity{
 	}
 	
 	/**
-	 * clear the edges
-	 * @param bmp
+	 * clear the edges of current image
+	 * @param bmp with edges
+	 * @return bmp without edges
 	 */	
 	private void clearEdge(){
 		new ClearEdges().execute();		
@@ -383,6 +384,7 @@ public class AutoMode extends Activity{
 //		Toast.makeText(getBaseContext(), "Color Applied",
 //				Toast.LENGTH_SHORT - 1).show();
 		showToast(AutoMode.this, "Color Applied ");
+		clearEdge();
 	}
 
 	/**
@@ -550,7 +552,7 @@ public class AutoMode extends Activity{
 		canApplySegmentation = true;
 		canSaveImage = true;
 
-		// AutoApplyCanny(galleryBmp);
+		 AutoApplyCanny(galleryBmp);
 	}
 
 	/**
@@ -682,7 +684,7 @@ public class AutoMode extends Activity{
 		@Override
 		protected void onPreExecute() {
 			currentProgress.setTitle(" Please Wait...");
-			currentProgress.setMessage(" While Applying Canny. ");
+			currentProgress.setMessage(" Segmentation is under process. ");
 			currentProgress.setCancelable( false );
 			currentProgress.show();
 		}		
@@ -899,7 +901,7 @@ public class AutoMode extends Activity{
 			frontView.setImageBitmap(white);
 			frontView.setDrawingCacheEnabled(false);
 			currentProgress.hide();
-			Toast.makeText(getBaseContext(), "Edges Cleared!", Toast.LENGTH_SHORT).show();
+			Toast.makeText(getBaseContext(), "Color Applied!", Toast.LENGTH_SHORT).show();
 		}
 
 		@Override
@@ -908,7 +910,7 @@ public class AutoMode extends Activity{
 			white = frontView.getDrawingCache();
 			
 			currentProgress.setTitle(" Please Wait...");
-			currentProgress.setMessage("While Clearing Edges. ");
+			currentProgress.setMessage("Applying Color To The Segmented Area ");
 			currentProgress.setCancelable( false );
 			currentProgress.show();
 		}
