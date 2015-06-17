@@ -29,7 +29,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.provider.MediaStore.Images;
 import android.util.Log;
 import android.view.Gravity;
@@ -39,7 +38,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -570,10 +568,10 @@ public class AutoMode extends Activity{
 						// but what if user choose white color?
 						// we should take care of that and little bit tinkering of white color
 						//wouldn't hurt much
-						int color = (int)Long.parseLong(String.valueOf(replacementColor), 16);
-						int r = (color >> 16) & 0xFF;
-						int g = (color >> 8) & 0xFF;
-						int b = (color >> 0) & 0xFF;
+//						int color = (int)Long.parseLong(String.valueOf(replacementColor), 16);
+//						int r = (color >> 16) & 0xFF;
+//						int g = (color >> 8) & 0xFF;
+//						int b = (color >> 0) & 0xFF;
 						
 						if( replacementColor == Color.WHITE ){
 							
