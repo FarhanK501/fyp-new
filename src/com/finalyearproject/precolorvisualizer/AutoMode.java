@@ -69,7 +69,7 @@ public class AutoMode extends Activity{
 	 * state of the bitmap
 	 * i.e.
 	 * FloodFilling for different segmentations
-	 * and last point where we done fillin' color.
+	 * and last point where we done filling color.
 	 */
 	Bitmap flood1, cannys, flood11, holdLastPic, white, black, laplac
 	, threshold, sobel;
