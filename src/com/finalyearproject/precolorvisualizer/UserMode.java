@@ -33,7 +33,8 @@ import android.widget.ImageView.ScaleType;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-@SuppressLint("NewApi") public class UserMode extends Activity {
+@SuppressLint("NewApi")
+public class UserMode extends Activity {
 
 	public static ImageView frontView;
 	public static boolean draw = false;
@@ -49,7 +50,7 @@ import android.widget.Toast;
 	UserModeDrawing umd;
 	public static RelativeLayout userView;
 	AlertDialog.Builder builder;
-	
+
 	/**
 	 * Progress Bar that will be shown when app is busy
 	 */
@@ -86,9 +87,9 @@ import android.widget.Toast;
 			}
 			break;
 		case R.id.userSave:
-			
+
 			new SaveCurrentImage().execute();
-			
+
 			break;
 
 		}
@@ -140,8 +141,8 @@ import android.widget.Toast;
 	}
 
 	private void initializer() {
-		currentProgress = new ProgressDialog( UserMode.this );
-		currentProgress.setProgressStyle( ProgressDialog.STYLE_SPINNER );
+		currentProgress = new ProgressDialog(UserMode.this);
+		currentProgress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 		backView = (ImageView) findViewById(R.id.backimageview);
 		frontView = (ImageView) findViewById(R.id.frontimageview);
 		backView.setScaleType(ScaleType.FIT_XY);
@@ -156,41 +157,57 @@ import android.widget.Toast;
 		if (resultCode == RESULT_OK) {
 			switch (requestCode) {
 			case SELECT_PICTURE:
-				onButtonPressed(data.getData());
+				onButtonPressed(data);
 
 				break;
 			case CAMERA_REQUEST:
-				onButtonPressed(data.getData());
+				onButtonPressed(data);
 				break;
 			}
 		}
 
 	}
 
-	private void onButtonPressed(Uri data) {
-		Uri image = data;
-		Bitmap finalBmp = null;
-		try {
-			bmp = Images.Media.getBitmap(getContentResolver(), image);
-			if( bmp.getWidth() > bmp.getHeight() ){
-				Matrix matrix = new Matrix();
-				matrix.postRotate( 90 );
-				finalBmp = Bitmap.createBitmap( bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true );
-				finalBmp = finalBmp.copy( Config.ARGB_8888, true );
-				finalBmp.setHasAlpha( true );
-				finalBmp = Bitmap.createScaledBitmap( finalBmp, 720, 1080, true );
-			} else {
-				finalBmp = bmp.copy( Config.ARGB_8888, true );
-				finalBmp.setHasAlpha( true );
-				finalBmp = Bitmap.createScaledBitmap( finalBmp, 720, 1080, true );
+	private void onButtonPressed(Intent data) {
+		Uri image = data.getData();
+		if (image != null) {
+			try {
+				bmp = Images.Media.getBitmap(getContentResolver(), image);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} else {
+			Bundle bundle = data.getExtras();
+			bmp = ( Bitmap ) bundle.get("data");
 		}
-		backView.setImageBitmap( finalBmp );
+		
+		afterGettingBmp(bmp);
+	}
+
+	/**
+	 * After Getting Image from gallery Or Camera
+	 */
+	private void afterGettingBmp(Bitmap bmp) {
+
+		Bitmap finalBmp = null;
+
+		if (bmp.getWidth() > bmp.getHeight()) {
+			Matrix matrix = new Matrix();
+			matrix.postRotate(90);
+			finalBmp = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(),
+					bmp.getHeight(), matrix, true);
+			finalBmp = finalBmp.copy(Config.ARGB_8888, true);
+			finalBmp.setHasAlpha(true);
+			finalBmp = Bitmap.createScaledBitmap(finalBmp, 720, 1080, true);
+		} else {
+			finalBmp = bmp.copy(Config.ARGB_8888, true);
+			finalBmp.setHasAlpha(true);
+			finalBmp = Bitmap.createScaledBitmap(finalBmp, 720, 1080, true);
+		}
+
+		backView.setImageBitmap(finalBmp);
 	}
 
 	protected void ColorPicker() {
@@ -219,31 +236,28 @@ import android.widget.Toast;
 
 		// super.onBackPressed();
 	}
-	
-	
+
 	/**
 	 * 
-	 * @author Farhan Khan
-	 * Saving current Image on view whether it's edged
-	 * or just simple image. We just want to save the image.
-	 *
+	 * @author Farhan Khan Saving current Image on view whether it's edged or
+	 *         just simple image. We just want to save the image.
+	 * 
 	 */
-	class SaveCurrentImage extends AsyncTask<Void, Void, Void>{	
-		
+	class SaveCurrentImage extends AsyncTask<Void, Void, Void> {
+
 		@Override
 		protected Void doInBackground(Void... arg0) {
-			
-			
+
 			Bitmap resultImage;
-			resultImage = Bitmap.createBitmap( bmp );
+			resultImage = Bitmap.createBitmap(bmp);
 			resultImage.copy(Config.ARGB_8888, true);
 			userView.setDrawingCacheEnabled(true);
 			resultImage = userView.getDrawingCache();
 			String root = Environment.getExternalStorageDirectory()
 					.getAbsolutePath();
 			File myDir = new File(root + "/PreColorResults");
-			myDir.mkdirs();	
-			
+			myDir.mkdirs();
+
 			Random generator = new Random();
 			long n = 1000000;
 			n = generator.nextLong();
@@ -269,14 +283,14 @@ import android.widget.Toast;
 				// Intent get = getIntent();
 				// finish();
 				// startActivity(get);
-			}		
+			}
 			return null;
 		}
 
 		@Override
 		protected void onPostExecute(Void result) {
 			currentProgress.hide();
-			
+
 			Toast.makeText(getBaseContext(),
 					"Image Saved at/sdcard/PreColorResults/",
 					Toast.LENGTH_SHORT).show();
@@ -284,12 +298,12 @@ import android.widget.Toast;
 
 		@Override
 		protected void onPreExecute() {
-			
+
 			currentProgress.setTitle(" Please Wait...");
 			currentProgress.setMessage("While Saving Image to Gallery");
-			currentProgress.setCancelable( false );
+			currentProgress.setCancelable(false);
 			currentProgress.show();
-						
+
 		}
 	}
 }
