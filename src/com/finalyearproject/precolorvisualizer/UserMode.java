@@ -36,19 +36,76 @@ import android.widget.Toast;
 @SuppressLint("NewApi")
 public class UserMode extends Activity {
 
+	/**
+	 * ImageView that is on the front dealing with drawing 
+	 * and filling segmented areas
+	 */
 	public static ImageView frontView;
+	
+	/**
+	 * Top left menu with pencil image
+	 * if is false set image to disable editing on image
+	 */
 	public static boolean draw = false;
+	
+	/**
+	 * Bitmaps that were used in user mode processes
+	 */
 	public static Bitmap cannyBmp, sendBmp;
+	
+	/**
+	 * Replacement color that is selected by dialog 
+	 * default color is white
+	 */
 	public static int replacementColor = Color.WHITE;
+	
+	/**
+	 * target color
+	 * is color that is user wants to replace by some other
+	 * colors
+	 */
 	public static int targetColor;
+	
+	/**
+	 * Camera Intent
+	 */
 	int ActivityAcquirePicture = 1;
+	
+	/**
+	 * X and Y coordinates of touching points
+	 */
 	int xCord, yCord;
-	Uri selectedImage, imageUri;
+	
+	/**
+	 * ImageView
+	 * A backview that holds selected image by user
+	 */
 	ImageView backView;
+	
+	/**
+	 * A default bitmap that holds chosen image by user
+	 */
 	Bitmap bmp;
+	
+	/**
+	 * Points where user touches
+	 */
 	Point p = new Point();
+	
+	/**
+	 * User Mode Drawing
+	 */
 	UserModeDrawing umd;
+	
+	/**
+	 * Whole View where we are showing everything, except
+	 * menus
+	 */
 	public static RelativeLayout userView;
+	
+	/**
+	 * Alert Dialog with options that user will select
+	 */
 	AlertDialog.Builder builder;
 
 	/**
@@ -56,6 +113,9 @@ public class UserMode extends Activity {
 	 */
 	ProgressDialog currentProgress;
 
+	/**
+	 * Camera and Gallery Intnet Request
+	 */
 	private final int SELECT_PICTURE = 100, CAMERA_REQUEST = 101;
 
 	@Override
