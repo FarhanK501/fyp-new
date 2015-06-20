@@ -65,12 +65,7 @@ public class UserMode extends Activity {
 	 * colors
 	 */
 	public static int targetColor;
-	
-	/**
-	 * Camera Intent
-	 */
-	int ActivityAcquirePicture = 1;
-	
+		
 	/**
 	 * X and Y coordinates of touching points
 	 */
