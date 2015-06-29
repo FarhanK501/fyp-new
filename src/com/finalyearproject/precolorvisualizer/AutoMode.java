@@ -182,49 +182,48 @@ public class AutoMode extends Activity {
 			break;
 
 		// applying canny
-		// case R.id.segCanny:
-		//
-		// if( canApplySegmentation ){
-		// AutoApplyCanny( bmpToBeSegmented );
-		// canClearEdges = true;
-		// } else {
-		// showToast(this, "Please Choose an image before segmentation");
-		// }
-		//
-		// break;
+		case R.id.segCanny:
+
+			if (canApplySegmentation) {
+				AutoApplyCanny(bmpToBeSegmented);
+				canClearEdges = true;
+			} else {
+				showToast(this, "Please Choose an image before segmentation");
+			}
+
+			break;
 
 		// applying laplacian
-		// case R.id.segLap:
-		//
-		// if( canApplySegmentation ){
-		// applyLaplacian( bmpToBeSegmented );
-		// canClearEdges = true;
-		// } else {
-		// showToast(this, "Please Choose an image before segmentation");
-		// }
-		// break;
+		case R.id.segLap:
+
+			if (canApplySegmentation) {
+				applyLaplacian(bmpToBeSegmented);
+				canClearEdges = true;
+			} else {
+				showToast(this, "Please Choose an image before segmentation");
+			}
+			break;
 
 		// applying simple threshold
-		// case R.id.segThreshold:
-		//
-		// if( canApplySegmentation ){
-		// thresholding( bmpToBeSegmented );
-		// canClearEdges = true;
-		// } else {
-		// showToast(this, "Please Choose an image before segmentation");
-		// }
-		// break;
+		case R.id.segThreshold:
+			if (canApplySegmentation) {
+				thresholding(bmpToBeSegmented);
+				canClearEdges = true;
+			} else {
+				showToast(this, "Please Choose an image before segmentation");
+			}
+			break;
 
 		// applying sobel image segmentation
-		// case R.id.segSobel:
-		//
-		// if( canApplySegmentation ){
-		// sobel(bmpToBeSegmented);
-		// canClearEdges = true;
-		// } else {
-		// showToast(this, "Please Choose an image before segmentation");
-		// }
-		// break;
+		case R.id.segSobel:
+
+			if (canApplySegmentation) {
+				sobel(bmpToBeSegmented);
+				canClearEdges = true;
+			} else {
+				showToast(this, "Please Choose an image before segmentation");
+			}
+			break;
 
 		// handle leakage of memory
 		default:
@@ -516,7 +515,7 @@ public class AutoMode extends Activity {
 				e.printStackTrace();
 			}
 		} else {
-			
+
 			Bundle extras = data.getExtras();
 			galleryBmp = (Bitmap) extras.get("data");
 		}
