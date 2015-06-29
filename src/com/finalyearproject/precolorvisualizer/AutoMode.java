@@ -155,16 +155,16 @@ public class AutoMode extends Activity {
 			break;
 
 		// clearing edges that was drawn before
-		// case R.id.segClearFrontView:
-		//
-		// if( canClearEdges ){
-		// clearEdge();
-		// } else {
-		// showToast(this, "Please Apply segmentation");
-		// }
-		//
-		// break;
-		//
+		case R.id.segClearFrontView:
+
+			if (canClearEdges) {
+				clearEdge();
+			} else {
+				showToast(this, "Please Apply segmentation");
+			}
+
+			break;
+
 		// saving image in gallery
 		case R.id.segSave:
 
@@ -371,10 +371,8 @@ public class AutoMode extends Activity {
 
 		flood1 = holdLastPic;
 		flood11 = holdLastPic;
-		// Toast.makeText(getBaseContext(), "Color Applied",
-		// Toast.LENGTH_SHORT - 1).show();
-		showToast(AutoMode.this, "Color Applied ");
-		clearEdge();
+
+		//clearEdge();
 	}
 
 	/**
@@ -551,7 +549,7 @@ public class AutoMode extends Activity {
 		canApplySegmentation = true;
 		canSaveImage = true;
 
-		AutoApplyCanny(galleryBmp);
+		// AutoApplyCanny(galleryBmp);
 	}
 
 	/**
@@ -688,7 +686,7 @@ public class AutoMode extends Activity {
 		@Override
 		protected void onPreExecute() {
 			currentProgress.setTitle(" Please Wait...");
-			currentProgress.setMessage(" Segmentation is under process. ");
+			currentProgress.setMessage(" Applying Canny Edge Detection. ");
 			currentProgress.setCancelable(false);
 			currentProgress.show();
 		}
@@ -908,7 +906,7 @@ public class AutoMode extends Activity {
 			white = frontView.getDrawingCache();
 
 			currentProgress.setTitle(" Please Wait...");
-			currentProgress.setMessage("Applying Color To The Segmented Area ");
+			currentProgress.setMessage("Clearing Edges");
 			currentProgress.setCancelable(false);
 			currentProgress.show();
 		}
