@@ -119,7 +119,11 @@ public class AutoMode extends Activity {
 	 * A Toast Message that is appear
 	 */
 	private static Toast toastShow;
-
+	
+	/**
+	 * Small alert that is shown when user tap on folder gallery button
+	 */
+	AlertDialog alert;
 	/**
 	 * default onCreate Method
 	 */
@@ -262,7 +266,7 @@ public class AutoMode extends Activity {
 								callTheGalIntent();
 							}
 						});
-		AlertDialog alert = builder.create();
+		alert = builder.create();
 
 		alert.show();
 	}
@@ -629,21 +633,24 @@ public class AutoMode extends Activity {
 	/**
 	 * On Back Press we need to go back to the main activity where we are
 	 * showing choose b/w modes
+	 * Destroying each view that was added in the current context, so we can
+	 * prevent memory leakage issue
 	 */
 	@Override
 	public void onBackPressed() {
+		alert.dismiss();
+		currentProgress.dismiss();
 		this.finish();
 		startActivity(new Intent(this, MainActivity.class));
-
 	}
 
 	/**
 	 * calling Camera
 	 */
 	private void callTehCamIntent() {
-		String pathToCard = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getPath();
+		String pathToCard = "file://"+Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getPath();
 		Intent camInt = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-		Uri uri = Uri.parse("file://"+pathToCard+"/tempPreColor.jpg");
+		Uri uri = Uri.parse(pathToCard+"/tempPreColor.jpg");
 		camInt.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, uri);
 		startActivityForResult(camInt, CAMERA_REQUEST);
 
