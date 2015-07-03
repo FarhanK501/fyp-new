@@ -683,12 +683,12 @@ public class AutoMode extends Activity {
 			for (int i = 0; i < cannys.getWidth(); i++) {
 				for (int j = 0; j < cannys.getHeight(); j++) {
 					if (cannys.getPixel(i, j) == Color.BLACK) {
-						cannys.setHasAlpha(true);
-						cannys.setPixel(i, j, Color.TRANSPARENT);
+						cannys.setPixel(i, j, Color.argb(5, 255, 255, 255));
 					}
 
 				}
 			}
+			cannys.setHasAlpha(true);
 			return null;
 		}
 
