@@ -442,7 +442,7 @@ public class AutoMode extends Activity {
 	}
 
 	/**
-	 * applying thresholding
+	 * applying Sobel
 	 * 
 	 * @param bmp
 	 * @return segmented bitmap
@@ -453,7 +453,7 @@ public class AutoMode extends Activity {
 		Utils.bitmapToMat(op, threshMat);
 		Imgproc.cvtColor(threshMat, threshMat, Imgproc.COLOR_BGRA2GRAY);
 		// Imgproc.sobel(threshMat, threshMat, 100, 255, Imgproc.THRESH_OTSU);
-		Imgproc.Sobel(threshMat, threshMat, threshMat.depth(), 2, 2);
+		Imgproc.Sobel(threshMat, threshMat, threshMat.depth(), 1, 1);
 		Imgproc.cvtColor(threshMat, threshMat, Imgproc.COLOR_GRAY2BGRA);
 		Utils.matToBitmap(threshMat, op);
 		bmp = op;
@@ -685,7 +685,6 @@ public class AutoMode extends Activity {
 					if (cannys.getPixel(i, j) == Color.BLACK) {
 						cannys.setPixel(i, j, Color.argb(5, 255, 255, 255));
 					}
-
 				}
 			}
 			cannys.setHasAlpha(true);
@@ -741,12 +740,12 @@ public class AutoMode extends Activity {
 			for (int i = 0; i < laplac.getWidth(); i++) {
 				for (int j = 0; j < laplac.getHeight(); j++) {
 					if (laplac.getPixel(i, j) == Color.BLACK) {
-						laplac.setHasAlpha(true);
-						laplac.setPixel(i, j, Color.TRANSPARENT);
+						laplac.setPixel(i, j, Color.argb(5, 255, 255, 255));
 					}
-
 				}
 			}
+			laplac.setHasAlpha(true);
+
 			return null;
 		}
 
@@ -800,12 +799,11 @@ public class AutoMode extends Activity {
 			for (int i = 0; i < threshold.getWidth(); i++) {
 				for (int j = 0; j < threshold.getHeight(); j++) {
 					if (threshold.getPixel(i, j) == Color.BLACK) {
-						threshold.setHasAlpha(true);
-						threshold.setPixel(i, j, Color.TRANSPARENT);
+						threshold.setPixel(i, j, Color.argb(5, 255, 255, 255));
 					}
-
 				}
 			}
+			threshold.setHasAlpha(true);
 			return null;
 		}
 
@@ -858,12 +856,12 @@ public class AutoMode extends Activity {
 			for (int i = 0; i < sobel.getWidth(); i++) {
 				for (int j = 0; j < sobel.getHeight(); j++) {
 					if (sobel.getPixel(i, j) == Color.BLACK) {
-						sobel.setHasAlpha(true);
-						sobel.setPixel(i, j, Color.TRANSPARENT);
+						sobel.setPixel(i, j, Color.argb(5, 255, 255, 255));
 					}
-
 				}
 			}
+			sobel.setHasAlpha(true);
+
 			return null;
 		}
 
