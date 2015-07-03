@@ -927,7 +927,7 @@ public class AutoMode extends Activity {
 			frontView.setImageBitmap(white);
 			frontView.setDrawingCacheEnabled(false);
 			currentProgress.hide();
-			Toast.makeText(getBaseContext(), "Color Applied!",
+			Toast.makeText(getBaseContext(), "Edges Cleard.",
 					Toast.LENGTH_SHORT).show();
 		}
 
