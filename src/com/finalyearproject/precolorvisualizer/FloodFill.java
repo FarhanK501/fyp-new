@@ -6,8 +6,6 @@ import java.util.Queue;
 import org.opencv.core.Point;
 
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
 
 public class FloodFill {
 public void floodFill(Bitmap  image, Point node, int targetColor,

@@ -29,7 +29,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
+import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
 import android.util.Log;
 import android.view.Gravity;
@@ -39,63 +39,56 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 @SuppressLint("NewApi")
-public class AutoMode extends Activity{
-	
+public class AutoMode extends Activity {
+
 	/**
-	 * Image View that will hold down our image with
-	 * edges and actual images. 
+	 * Image View that will hold down our image with edges and actual images.
 	 */
 	ImageView backView, frontView;
-	
+
 	/**
-	 *  Variable that will holds down the request for camera
-	 *  or gallery
+	 * Variable that will holds down the request for camera or gallery
 	 */
 	public final int GALLERY_REQUEST = 101, CAMERA_REQUEST = 102;
-	
+
 	/**
-	 * Image that is selected by user
-	 * Either from gallery or from Camera
+	 * Image that is selected by user Either from gallery or from Camera
 	 */
 	Bitmap galleryBmp;
-	
+
 	/**
-	 * those are the bitmaps that will hold down the current
-	 * state of the bitmap
-	 * i.e.
-	 * FloodFilling for different segmentations
-	 * and last point where we done fillin' color.
+	 * those are the bitmaps that will hold down the current state of the bitmap
+	 * i.e. FloodFilling for different segmentations and last point where we
+	 * done filling color.
 	 */
-	Bitmap flood1, cannys, flood11, holdLastPic, white, black, laplac
-	, threshold, sobel;
-	
+	Bitmap flood1, cannys, flood11, holdLastPic, white, black, laplac,
+			threshold, sobel;
+
 	/**
-	 * The whole layout where we are showing our images and stuff
-	 * in the end we save the whole view and saving it in gallery
+	 * The whole layout where we are showing our images and stuff in the end we
+	 * save the whole view and saving it in gallery
 	 */
 	RelativeLayout view;
-	
+
 	/**
-	 * Initializing the replacement color
-	 * that is byDefault will be shown on
+	 * Initializing the replacement color that is byDefault will be shown on
 	 * Color Picker Dialog
 	 */
 	int replacementColor = Color.GRAY;
-	
+
 	/**
-	 * alert dialog holds some of the options to be chosen from user
-	 * like getting image from camera or gallery etc..
+	 * alert dialog holds some of the options to be chosen from user like
+	 * getting image from camera or gallery etc..
 	 */
 	AlertDialog.Builder builder;
-	
+
 	/**
-	 * showing progress when process is being executed so user can know
-	 * and wait unitl process is done
+	 * showing progress when process is being executed so user can know and wait
+	 * unitl process is done
 	 */
 	boolean showProgress = false;
 
@@ -103,33 +96,34 @@ public class AutoMode extends Activity{
 	 * Progress Bar that will be shown when app is busy
 	 */
 	ProgressDialog currentProgress;
-	
+
 	/**
-	 * A boolean flag that will allow users to Save current image.
-	 * Handling of a case where user didn't choose any image
-	 * and tries to save
+	 * A boolean flag that will allow users to Save current image. Handling of a
+	 * case where user didn't choose any image and tries to save
 	 */
 	private boolean canSaveImage = false;
-	
+
 	/**
-	 * A boolean flag that will use to handle the case where
-	 * user didn't choose any image neither he applied any 
-	 * segmentation
+	 * A boolean flag that will use to handle the case where user didn't choose
+	 * any image neither he applied any segmentation
 	 */
 	private boolean canClearEdges = false;
-	
+
 	/**
-	 * A boolean flag that is use to handle the case where user
-	 * didn't choose any image tries to apply segmentation
+	 * A boolean flag that is use to handle the case where user didn't choose
+	 * any image tries to apply segmentation
 	 */
 	private boolean canApplySegmentation = false;
-	
-	
+
 	/**
 	 * A Toast Message that is appear
 	 */
 	private static Toast toastShow;
 	
+	/**
+	 * Small alert that is shown when user tap on folder gallery button
+	 */
+	AlertDialog alert;
 	/**
 	 * default onCreate Method
 	 */
@@ -138,8 +132,8 @@ public class AutoMode extends Activity{
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.automode);
-		
-		//initialize views
+
+		// initialize views
 		initializer();
 
 	}
@@ -156,214 +150,214 @@ public class AutoMode extends Activity{
 		backView.setDrawingCacheEnabled(true);
 		Bitmap bmpToBeSegmented = backView.getDrawingCache();
 
-		
 		int id = item.getItemId();
 		switch (id) {
-		
+
 		// Showing a dialog with color chooser
 		case R.id.SagColPic:
-			
+
 			ColorPicker();
 			break;
-		
+
 		// clearing edges that was drawn before
 		case R.id.segClearFrontView:
-			
-			if( canClearEdges ){
+
+			if (canClearEdges) {
 				clearEdge();
 			} else {
 				showToast(this, "Please Apply segmentation");
 			}
-			
+
 			break;
-		
+
 		// saving image in gallery
 		case R.id.segSave:
-			
-			if( canSaveImage ){
+
+			if (canSaveImage) {
 				saveImage();
-			}  else {
+			} else {
 				showToast(this, "Please Choose an image before saving");
 			}
 			break;
-		
+
 		// a dialog with two buttons, one for camera, one for gallery
 		case R.id.SegGal:
-			
+
 			showOption();
 			break;
 
 		// applying canny
 		case R.id.segCanny:
 
-			if( canApplySegmentation ){
-				AutoApplyCanny( bmpToBeSegmented );
+			if (canApplySegmentation) {
+				AutoApplyCanny(bmpToBeSegmented);
 				canClearEdges = true;
-			}  else {
+			} else {
 				showToast(this, "Please Choose an image before segmentation");
 			}
-			
+
 			break;
-			
+
 		// applying laplacian
 		case R.id.segLap:
 
-			if( canApplySegmentation ){
-				applyLaplacian( bmpToBeSegmented );	
+			if (canApplySegmentation) {
+				applyLaplacian(bmpToBeSegmented);
 				canClearEdges = true;
-			}  else {
+			} else {
 				showToast(this, "Please Choose an image before segmentation");
 			}
 			break;
-			
+
 		// applying simple threshold
 		case R.id.segThreshold:
-			
-			if( canApplySegmentation ){
-				thresholding( bmpToBeSegmented );
+			if (canApplySegmentation) {
+				thresholding(bmpToBeSegmented);
 				canClearEdges = true;
-			}  else {
+			} else {
 				showToast(this, "Please Choose an image before segmentation");
 			}
 			break;
-			
-		//applying sobel image segmentation
+
+		// applying sobel image segmentation
 		case R.id.segSobel:
-			
-			if( canApplySegmentation ){
+
+			if (canApplySegmentation) {
 				sobel(bmpToBeSegmented);
 				canClearEdges = true;
 			} else {
 				showToast(this, "Please Choose an image before segmentation");
 			}
 			break;
-		
+
 		// handle leakage of memory
 		default:
-			
-			backView.setDrawingCacheEnabled( false );
+
+			backView.setDrawingCacheEnabled(false);
 			bmpToBeSegmented.recycle();
-			
+
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	
+
 	/**
-	 *  Showing a dialog with two options
+	 * Showing a dialog with two options
 	 */
-	private void showOption(){
+	private void showOption() {
 
 		builder = new AlertDialog.Builder(this);
 		builder.setMessage("Use Image From")
 				.setCancelable(true)
 				.setPositiveButton("Camera",
 						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-									int id) {
-								//clear views before carry out
-								//new one
+							public void onClick(DialogInterface dialog, int id) {
+								// clear views before carry out
+								// new one
 								clearView();
 								callTehCamIntent();
 							}
 						})
 				.setNegativeButton("Gallery",
 						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-									int id) {
+							public void onClick(DialogInterface dialog, int id) {
 								// clear views before
 								clearView();
 								callTheGalIntent();
 							}
 						});
-		AlertDialog alert = builder.create();
+		alert = builder.create();
 
 		alert.show();
 	}
-	
+
 	/**
-	* Before we carry out new images
-	* we had to clear views
-	*/
-	private void clearView(){
+	 * Before we carry out new images we had to clear views
+	 */
+	private void clearView() {
 		// clear the backview holding actual image
 		backView.setImageBitmap(null);
 		backView.destroyDrawingCache();
-		
-		//clearing the front image view holding edges/segments
+
+		// clearing the front image view holding edges/segments
 		frontView.setImageBitmap(null);
 		frontView.destroyDrawingCache();
 	}
-	
+
 	/**
-	 * clear the edges
+	 * clear the edges of current image
+	 * 
 	 * @param bmp
-	 */	
-	private void clearEdge(){
-		new ClearEdges().execute();		
+	 *            with edges
+	 * @return bmp without edges
+	 */
+	private void clearEdge() {
+		new ClearEdges().execute();
 	}
-	
+
 	/**
 	 * Save image in Gallery
+	 * 
 	 * @param bmp
 	 */
-	private void saveImage(){
+	private void saveImage() {
 		new SaveCurrentImage().execute();
 	}
-	
+
 	/**
-	 * it's after we applied LAPLACIAN algo
-	 * Here we are just getting the coordinates of
-	 * touch and filling color to it
-	 * We color on those places at the front view where we
-	 * see Black color. Because now frontView is in only
-	 * two( Binary ) colors and we just had to supposed white color as
-	 * edges..
+	 * it's after we applied LAPLACIAN algo Here we are just getting the
+	 * coordinates of touch and filling color to it We color on those places at
+	 * the front view where we see Black color. Because now frontView is in only
+	 * two( Binary ) colors and we just had to supposed white color as edges..
+	 * 
 	 * @param galleryBmp
 	 */
-	private void applyLaplacian( Bitmap bmp ) {
+	private void applyLaplacian(Bitmap bmp) {
 		new LaplacianTechnique().execute();
 	}
 
 	/**
-	 * it's after we applied CANNY algo
-	 * Here we are just getting the coordinates of
-	 * touch and filling color to it
-	 * We color on those places at the front view where we
-	 * see Black color. Because now frontView is in only
-	 * two( Binary ) colors and we just had to supposed white color as
-	 * edges..
+	 * it's after we applied CANNY algo Here we are just getting the coordinates
+	 * of touch and filling color to it We color on those places at the front
+	 * view where we see Black color. Because now frontView is in only two(
+	 * Binary ) colors and we just had to supposed white color as edges..
+	 * 
 	 * @param galleryBmp
 	 */
 	private void AutoApplyCanny(Bitmap bmp) {
-		new CannyTechnique().execute();		
+		new CannyTechnique().execute();
 	}
-	
+
 	/**
 	 * Applying Threshold
+	 * 
 	 * @param bm
 	 * @param x
 	 * @param y
 	 */
 	private void thresholding(Bitmap galleryBmp) {
-		
+
 		threshold = galleryBmp;
 		new ThresholdTechnique().execute();
 	}
-	
-	/* Applying Sobel
+
+	/*
+	 * Applying Sobel
+	 * 
 	 * @param bm
+	 * 
 	 * @param x
+	 * 
 	 * @param y
 	 */
 	private void sobel(Bitmap galleryBmp) {
-		
+
 		sobel = galleryBmp;
 		new SobelTechnique().execute();
 	}
-	
+
 	/**
-	 * Here we are drawing a selected segment with the 
-	 * selected color
+	 * Here we are drawing a selected segment with the selected color
+	 * 
 	 * @param bm
 	 * @param x
 	 * @param y
@@ -382,19 +376,17 @@ public class AutoMode extends Activity{
 
 		flood1 = holdLastPic;
 		flood11 = holdLastPic;
-//		Toast.makeText(getBaseContext(), "Color Applied",
-//				Toast.LENGTH_SHORT - 1).show();
-		showToast(AutoMode.this, "Color Applied ");
+
 	}
 
 	/**
-	 *  Apply canny
-	 *  which is good from others at the moment
+	 * Apply canny which is good from others at the moment
+	 * 
 	 * @param bmp
 	 * @return Segmented Image
 	 */
 	private Bitmap applyCanny(Bitmap bmp) {
-			
+
 		Bitmap op = galleryBmp.copy(Config.ARGB_8888, true);
 		Size s = new Size(3, 3);
 		Mat canyMat = new Mat(op.getWidth(), op.getHeight(), CvType.CV_8UC4);
@@ -409,14 +401,15 @@ public class AutoMode extends Activity{
 		bmp = op;
 		return bmp;
 	}
-	
+
 	/**
 	 * Applying laplacian
+	 * 
 	 * @param bmp
 	 * @return segmented Bitmap
 	 */
 	private Bitmap applyLaplac(Bitmap bmp) {
-		
+
 		Bitmap op = galleryBmp.copy(Config.ARGB_8888, true);
 		Mat lapMat = new Mat(op.getWidth(), op.getHeight(), CvType.CV_8UC4);
 		Utils.bitmapToMat(op, lapMat);
@@ -425,12 +418,13 @@ public class AutoMode extends Activity{
 		Imgproc.cvtColor(lapMat, lapMat, Imgproc.COLOR_GRAY2BGRA);
 		Utils.matToBitmap(lapMat, op);
 		bmp = op;
-		
+
 		return bmp;
 	}
-	
+
 	/**
 	 * applying thresholding
+	 * 
 	 * @param bmp
 	 * @return segmented bitmap
 	 */
@@ -443,13 +437,13 @@ public class AutoMode extends Activity{
 		Imgproc.cvtColor(threshMat, threshMat, Imgproc.COLOR_GRAY2BGRA);
 		Utils.matToBitmap(threshMat, op);
 		bmp = op;
-		
+
 		return bmp;
 	}
-	
-	
+
 	/**
 	 * applying thresholding
+	 * 
 	 * @param bmp
 	 * @return segmented bitmap
 	 */
@@ -458,19 +452,18 @@ public class AutoMode extends Activity{
 		Mat threshMat = new Mat(op.getWidth(), op.getHeight(), CvType.CV_8UC4);
 		Utils.bitmapToMat(op, threshMat);
 		Imgproc.cvtColor(threshMat, threshMat, Imgproc.COLOR_BGRA2GRAY);
-		//Imgproc.sobel(threshMat, threshMat, 100, 255, Imgproc.THRESH_OTSU);
+		// Imgproc.sobel(threshMat, threshMat, 100, 255, Imgproc.THRESH_OTSU);
 		Imgproc.Sobel(threshMat, threshMat, threshMat.depth(), 2, 2);
 		Imgproc.cvtColor(threshMat, threshMat, Imgproc.COLOR_GRAY2BGRA);
 		Utils.matToBitmap(threshMat, op);
 		bmp = op;
-		
+
 		return bmp;
 	}
-	
 
 	/**
-	 * When new intent started with some specific information
-	 * here we use this to handle the camera and gallery data
+	 * When new intent started with some specific information here we use this
+	 * to handle the camera and gallery data
 	 */
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -478,19 +471,42 @@ public class AutoMode extends Activity{
 			switch (requestCode) {
 			// gallery request
 			case GALLERY_REQUEST:
-				
-				onButtonPressed(data.getData());
+
+				onButtonPressed(data);
 				break;
-				
+
 			// camera request
 			case CAMERA_REQUEST:
-				
-				onButtonPressed(data.getData());
+
+				forCamera();
 				break;
-				
+
 			}
 		}
 	}
+	private void forCamera(){
+		  File file = new File(Environment.getExternalStoragePublicDirectory(
+				  				Environment.DIRECTORY_DCIM).getPath(), "tempPreColor.jpg");
+        Uri uri = Uri.fromFile(file);
+        Bitmap bitmap;
+        try {
+            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+
+            onGetImage(bitmap);
+        
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+	}
+	
+	/**
+	 * For getting full size image for camera intent
+	 */
+	
 
 	/**
 	 * Initializing all our views
@@ -499,39 +515,47 @@ public class AutoMode extends Activity{
 		backView = (ImageView) findViewById(R.id.dImageView);
 		frontView = (ImageView) findViewById(R.id.dImageViewFront);
 		view = (RelativeLayout) findViewById(R.id.relativity);
-		currentProgress = new ProgressDialog( AutoMode.this );
-		currentProgress.setProgressStyle( ProgressDialog.STYLE_SPINNER );
+		currentProgress = new ProgressDialog(AutoMode.this);
+		currentProgress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 	}
 
 	/**
-	 * Either Camera Button pressed or gallery
-	 * In Both cases we need to get the path of
-	 * the image and then save it in the
-	 * variabel
-	 * @param r
+	 * Either Camera Button pressed or gallery In Both cases we need to get the
+	 * path of the image and then save it in the variabel
+	 * 
+	 * @param Intent
 	 */
-	private void onButtonPressed(Uri r) {
-		Uri image = r;
-		try {
-			galleryBmp = Images.Media.getBitmap(getContentResolver(), image);
+	private void onButtonPressed(Intent data) {
+		Uri currentData = data.getData();
+		if (currentData != null) {
+			Uri image = currentData;
 
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+			try {
+				galleryBmp = Images.Media
+						.getBitmap(getContentResolver(), image);
+
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} else {
+
+			Bundle extras = data.getExtras();
+			galleryBmp = (Bitmap) extras.get("data");
 		}
 		onGetImage(galleryBmp);
+
 	}
-	
-	
+
 	/**
-	 * After getting image from camera or gallery
-	 * We have to do some calculation on which we
-	 * rotate the screen or image
+	 * After getting image from camera or gallery We have to do some calculation
+	 * on which we rotate the screen or image
+	 * 
 	 * @param bm
 	 */
 	private void onGetImage(Bitmap bm) {
-		
+
 		if (bm.getWidth() > bm.getHeight()) {
 			Bitmap bMapRotate = null;
 			Matrix mat = new Matrix();
@@ -548,7 +572,7 @@ public class AutoMode extends Activity{
 					backView.getHeight(), true);
 			backView.setImageBitmap(bm);
 		}
-		
+
 		canApplySegmentation = true;
 		canSaveImage = true;
 
@@ -556,34 +580,39 @@ public class AutoMode extends Activity{
 	}
 
 	/**
-	 * A simple dialog holds color picker 
-	 * User can select color from it
+	 * A simple dialog holds color picker User can select color from it
 	 */
 	protected void ColorPicker() {
-		AmbilWarnaDialog pickerDialog = new AmbilWarnaDialog(this, Color.BLACK, true,
-				new OnAmbilWarnaListener() {
+		AmbilWarnaDialog pickerDialog = new AmbilWarnaDialog(this, Color.BLACK,
+				true, new OnAmbilWarnaListener() {
 					@Override
 					public void onOk(AmbilWarnaDialog dialog, int colors) {
 						replacementColor = colors;
-						
-						// we are applying colors to those area where white color isn't present
+
+						// we are applying colors to those area where white
+						// color isn't present
 						// but what if user choose white color?
-						// we should take care of that and little bit tinkering of white color
-						//wouldn't hurt much
-						int color = (int)Long.parseLong(String.valueOf(replacementColor), 16);
-						int r = (color >> 16) & 0xFF;
-						int g = (color >> 8) & 0xFF;
-						int b = (color >> 0) & 0xFF;
-						
-						if( replacementColor == Color.WHITE ){
-							
+						// we should take care of that and little bit tinkering
+						// of white color
+						// wouldn't hurt much
+						// int color =
+						// (int)Long.parseLong(String.valueOf(replacementColor),
+						// 16);
+						// int r = (color >> 16) & 0xFF;
+						// int g = (color >> 8) & 0xFF;
+						// int b = (color >> 0) & 0xFF;
+
+						if (replacementColor == Color.WHITE) {
+
 							replacementColor = Color.parseColor("#fefefe");
-							
-						} //else {
-							//by this we can add default transparency to applying color because
-							// in some mobile we can't show proper color picker dialog
-							//replacementColor = Color.argb(10, r, g, b);
-						//}
+
+						} // else {
+							// by this we can add default transparency to
+							// applying color because
+							// in some mobile we can't show proper color picker
+							// dialog
+							// replacementColor = Color.argb(10, r, g, b);
+						// }
 
 					}
 
@@ -600,22 +629,27 @@ public class AutoMode extends Activity{
 	}
 
 	/**
-	 * On Back Press we need to go back to the
-	 *main activity where we are showing choose
-	 * b/w modes
+	 * On Back Press we need to go back to the main activity where we are
+	 * showing choose b/w modes
+	 * Destroying each view that was added in the current context, so we can
+	 * prevent memory leakage issue
 	 */
 	@Override
 	public void onBackPressed() {
+		alert.dismiss();
+		currentProgress.dismiss();
 		this.finish();
 		startActivity(new Intent(this, MainActivity.class));
-
 	}
 
 	/**
-	 * calling Camere
+	 * calling Camera
 	 */
 	private void callTehCamIntent() {
-		Intent camInt = new Intent("android.media.action.IMAGE_CAPTURE");
+		String pathToCard = "file://"+Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getPath();
+		Intent camInt = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		Uri uri = Uri.parse(pathToCard+"/tempPreColor.jpg");
+		camInt.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, uri);
 		startActivityForResult(camInt, CAMERA_REQUEST);
 
 	}
@@ -630,16 +664,15 @@ public class AutoMode extends Activity{
 		startActivityForResult(galleryIntent, GALLERY_REQUEST);
 
 	}
-	
+
 	/**
 	 * 
-	 * @author Farhan Khan
-	 * A sub Async class for applying canny
-	 * in the background, so screen wont hang again
-	 * also is a good practice to show that some background
-	 * Stuff is going on so user wont feel lag or irritate
+	 * @author Farhan Khan A sub Async class for applying canny in the
+	 *         background, so screen wont hang again also is a good practice to
+	 *         show that some background Stuff is going on so user wont feel lag
+	 *         or irritate
 	 */
-	class CannyTechnique extends AsyncTask<Void, Void, Void>{
+	class CannyTechnique extends AsyncTask<Void, Void, Void> {
 
 		@Override
 		protected Void doInBackground(Void... arg0) {
@@ -684,22 +717,20 @@ public class AutoMode extends Activity{
 		@Override
 		protected void onPreExecute() {
 			currentProgress.setTitle(" Please Wait...");
-			currentProgress.setMessage(" While Applying Canny. ");
-			currentProgress.setCancelable( false );
+			currentProgress.setMessage(" Applying Canny Edge Detection. ");
+			currentProgress.setCancelable(false);
 			currentProgress.show();
-		}		
+		}
 	}
-	
-	
+
 	/**
 	 * 
-	 * @author Farhan Khan
-	 * A sub Async class for applying Laplacian
-	 * in the background, so screen wont hang again
-	 * also is a good practice to show that some background
-	 * Stuff is going on so user wont feel lag or irritate
+	 * @author Farhan Khan A sub Async class for applying Laplacian in the
+	 *         background, so screen wont hang again also is a good practice to
+	 *         show that some background Stuff is going on so user wont feel lag
+	 *         or irritate
 	 */
-	class LaplacianTechnique extends AsyncTask<Void, Void, Void>{
+	class LaplacianTechnique extends AsyncTask<Void, Void, Void> {
 
 		@Override
 		protected Void doInBackground(Void... arg0) {
@@ -744,22 +775,21 @@ public class AutoMode extends Activity{
 		@Override
 		protected void onPreExecute() {
 			currentProgress.setTitle(" Please Wait...");
-			currentProgress.setMessage("While Applying Laplacian Edge Detection");
-			currentProgress.setCancelable( false );
+			currentProgress
+					.setMessage("While Applying Laplacian Edge Detection");
+			currentProgress.setCancelable(false);
 			currentProgress.show();
-		}				
+		}
 	}
-	
-	
+
 	/**
 	 * 
-	 * @author Farhan Khan
-	 * A sub Async class for applying canny
-	 * in the background, so screen wont hang again
-	 * also is a good practice to show that some background
-	 * Stuff is going on so user wont feel lag or irritate
+	 * @author Farhan Khan A sub Async class for applying canny in the
+	 *         background, so screen wont hang again also is a good practice to
+	 *         show that some background Stuff is going on so user wont feel lag
+	 *         or irritate
 	 */
-	class ThresholdTechnique extends AsyncTask<Void, Void, Void>{
+	class ThresholdTechnique extends AsyncTask<Void, Void, Void> {
 
 		@Override
 		protected Void doInBackground(Void... arg0) {
@@ -805,21 +835,19 @@ public class AutoMode extends Activity{
 		protected void onPreExecute() {
 			currentProgress.setTitle(" Please Wait...");
 			currentProgress.setMessage(" While Applying Simple Edge Detection");
-			currentProgress.setCancelable( false );
+			currentProgress.setCancelable(false);
 			currentProgress.show();
-		}		
+		}
 	}
-	
-	
+
 	/**
 	 * 
-	 * @author Farhan Khan
-	 * A sub Async class for applying canny
-	 * in the background, so screen wont hang again
-	 * also is a good practice to show that some background
-	 * Stuff is going on so user wont feel lag or irritate
+	 * @author Farhan Khan A sub Async class for applying canny in the
+	 *         background, so screen wont hang again also is a good practice to
+	 *         show that some background Stuff is going on so user wont feel lag
+	 *         or irritate
 	 */
-	class SobelTechnique extends AsyncTask<Void, Void, Void>{
+	class SobelTechnique extends AsyncTask<Void, Void, Void> {
 
 		@Override
 		protected Void doInBackground(Void... arg0) {
@@ -865,22 +893,20 @@ public class AutoMode extends Activity{
 		protected void onPreExecute() {
 			currentProgress.setTitle(" Please Wait...");
 			currentProgress.setMessage("While Applying Sobel Edge Detection. ");
-			currentProgress.setCancelable( false );
+			currentProgress.setCancelable(false);
 			currentProgress.show();
-		}		
+		}
 	}
-	
-	
-	/**
-	 * A sub class which will clear the edges on pressing
-	 * tapping the menu clear edges
-	 */
-	class ClearEdges extends AsyncTask<Void, Void, Void>{
 
+	/**
+	 * A sub class which will clear the edges on pressing tapping the menu clear
+	 * edges
+	 */
+	class ClearEdges extends AsyncTask<Void, Void, Void> {
 
 		@Override
 		protected Void doInBackground(Void... arg0) {
-			
+
 			white = white.copy(Config.ARGB_8888, true);
 			for (int i = 0; i < white.getWidth(); i++) {
 				for (int j = 0; j < white.getHeight(); j++) {
@@ -892,7 +918,7 @@ public class AutoMode extends Activity{
 			Mat m = new Mat(white.getWidth(), white.getHeight(), CvType.CV_8UC4);
 			Utils.bitmapToMat(white, m);
 			Imgproc.morphologyEx(m, m, Imgproc.MORPH_OPEN, new Mat());
-			Utils.matToBitmap(m, white);			
+			Utils.matToBitmap(m, white);
 			return null;
 		}
 
@@ -901,46 +927,45 @@ public class AutoMode extends Activity{
 			frontView.setImageBitmap(white);
 			frontView.setDrawingCacheEnabled(false);
 			currentProgress.hide();
-			Toast.makeText(getBaseContext(), "Edges Cleared!", Toast.LENGTH_SHORT).show();
+			Toast.makeText(getBaseContext(), "Edges Cleard.",
+					Toast.LENGTH_SHORT).show();
 		}
 
 		@Override
 		protected void onPreExecute() {
 			frontView.setDrawingCacheEnabled(true);
 			white = frontView.getDrawingCache();
-			
+
 			currentProgress.setTitle(" Please Wait...");
-			currentProgress.setMessage("While Clearing Edges. ");
-			currentProgress.setCancelable( false );
+			currentProgress.setMessage("Clearing Edges");
+			currentProgress.setCancelable(false);
 			currentProgress.show();
 		}
 	}
-	
+
 	public void showToast(Activity actRef, String message) {
 
-	    if (toastShow == null
-	            || toastShow.getView().getWindowVisibility() != View.VISIBLE) {
-	        toastShow = Toast.makeText(actRef, message, Toast.LENGTH_SHORT);
-	        toastShow.setGravity(Gravity.CENTER, 0, 0);
-	        toastShow.show();
-	    } else {
-	    	toastShow.cancel();
-	    }
+		if (toastShow == null
+				|| toastShow.getView().getWindowVisibility() != View.VISIBLE) {
+			toastShow = Toast.makeText(actRef, message, Toast.LENGTH_SHORT);
+			toastShow.setGravity(Gravity.CENTER, 0, 0);
+			toastShow.show();
+		} else {
+			toastShow.cancel();
+		}
 	}
-	
+
 	/**
 	 * 
-	 * @author Farhan Khan
-	 * Saving current Image on view whether it's edged
-	 * or just simple image. We just want to save the image.
-	 *
+	 * @author Farhan Khan Saving current Image on view whether it's edged or
+	 *         just simple image. We just want to save the image.
+	 * 
 	 */
-	class SaveCurrentImage extends AsyncTask<Void, Void, Void>{	
-		
+	class SaveCurrentImage extends AsyncTask<Void, Void, Void> {
+
 		@Override
 		protected Void doInBackground(Void... arg0) {
-			
-			
+
 			Bitmap resultImage;
 			resultImage = Bitmap.createBitmap(galleryBmp);
 			resultImage.copy(Config.ARGB_8888, true);
@@ -949,8 +974,8 @@ public class AutoMode extends Activity{
 			String root = Environment.getExternalStorageDirectory()
 					.getAbsolutePath();
 			File myDir = new File(root + "/PreColorResults");
-			myDir.mkdirs();	
-			
+			myDir.mkdirs();
+
 			Random generator = new Random();
 			long n = 1000000;
 			n = generator.nextLong();
@@ -976,14 +1001,14 @@ public class AutoMode extends Activity{
 				// Intent get = getIntent();
 				// finish();
 				// startActivity(get);
-			}		
+			}
 			return null;
 		}
 
 		@Override
 		protected void onPostExecute(Void result) {
 			currentProgress.hide();
-			
+
 			Toast.makeText(getBaseContext(),
 					"Image Saved at/sdcard/PreColorResults/",
 					Toast.LENGTH_SHORT).show();
@@ -991,12 +1016,12 @@ public class AutoMode extends Activity{
 
 		@Override
 		protected void onPreExecute() {
-			
+
 			currentProgress.setTitle(" Please Wait...");
 			currentProgress.setMessage("While Saving Image to Gallery");
-			currentProgress.setCancelable( false );
+			currentProgress.setCancelable(false);
 			currentProgress.show();
-						
+
 		}
 	}
 }
