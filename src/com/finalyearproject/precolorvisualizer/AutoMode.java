@@ -718,7 +718,7 @@ public class AutoMode extends Activity {
 		@Override
 		protected void onPreExecute() {
 			currentProgress.setTitle(" Please Wait...");
-			currentProgress.setMessage(" Segmentation is under process. ");
+			currentProgress.setMessage(" Segmentation in progress. ");
 			currentProgress.setCancelable(false);
 			currentProgress.show();
 		}
