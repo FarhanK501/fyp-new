@@ -193,8 +193,9 @@ public class UserMode extends Activity {
 	}
 
 	protected void callTehCamIntent() {
+		String pathToCard = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getPath();
 		Intent camInt = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-		Uri uri = Uri.parse("file:///sdcard/photo.jpg");
+		Uri uri = Uri.parse("file://"+pathToCard+"/tempPreColor.jpg");
 		camInt.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, uri);
 		startActivityForResult(camInt, CAMERA_REQUEST);
 
@@ -230,7 +231,8 @@ public class UserMode extends Activity {
 	}
 	
 	private void forCamera(){
-		  File file = new File(Environment.getExternalStorageDirectory().getPath(), "photo.jpg");
+		  File file = new File(Environment.getExternalStoragePublicDirectory(
+				  				Environment.DIRECTORY_DCIM).getPath(), "tempPreColor.jpg");
           Uri uri = Uri.fromFile(file);
           Bitmap bitmap;
           try {
