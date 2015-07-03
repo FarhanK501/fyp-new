@@ -13,6 +13,9 @@ import java.util.Date;
 import java.util.Random;
 
 import org.opencv.core.Point;
+
+import com.finalyearproject.precolorvisualizer.automode.R;
+
 import yuku.ambilwarna.AmbilWarnaDialog;
 import yuku.ambilwarna.AmbilWarnaDialog.OnAmbilWarnaListener;
 import android.annotation.SuppressLint;
