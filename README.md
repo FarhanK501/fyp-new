@@ -32,10 +32,12 @@ You need to add those library in your project otherwise it won't Run.
 
 If you think you can contribute to project.
 
-Please make a pull request and we'll merge you.
+Please make a pull request and we'll merge your request.
 
 You can also open an issue or report a bug.
 
-It's an open source project. If you want to use it for your own purpose, you can but please do give us some credits. :)
+It's an open source project. Feel free to use it.
 
-Thanks..
+If you have any query related to project you can contact us.
+
+Enjoy :)
