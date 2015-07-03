@@ -372,9 +372,7 @@ public class AutoMode extends Activity {
 
 		flood1 = holdLastPic;
 		flood11 = holdLastPic;
-		// Toast.makeText(getBaseContext(), "Color Applied",
-		// Toast.LENGTH_SHORT - 1).show();
-		showToast(AutoMode.this, "Color Applied ");
+
 		clearEdge();
 	}
 
