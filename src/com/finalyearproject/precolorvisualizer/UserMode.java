@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
 
 import org.opencv.core.Point;
@@ -24,6 +26,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
 import android.util.Log;
 import android.view.Menu;
@@ -37,67 +40,62 @@ import android.widget.Toast;
 public class UserMode extends Activity {
 
 	/**
-	 * ImageView that is on the front dealing with drawing 
-	 * and filling segmented areas
+	 * ImageView that is on the front dealing with drawing and filling segmented
+	 * areas
 	 */
 	public static ImageView frontView;
-	
+
 	/**
-	 * Top left menu with pencil image
-	 * if is false set image to disable editing on image
+	 * Top left menu with pencil image if is false set image to disable editing
+	 * on image
 	 */
 	public static boolean draw = false;
-	
+
 	/**
 	 * Bitmaps that were used in user mode processes
 	 */
 	public static Bitmap cannyBmp, sendBmp;
-	
+
 	/**
-	 * Replacement color that is selected by dialog 
-	 * default color is white
+	 * Replacement color that is selected by dialog default color is white
 	 */
 	public static int replacementColor = Color.WHITE;
-	
+
 	/**
-	 * target color
-	 * is color that is user wants to replace by some other
-	 * colors
+	 * target color is color that is user wants to replace by some other colors
 	 */
 	public static int targetColor;
-		
+
 	/**
 	 * X and Y coordinates of touching points
 	 */
 	int xCord, yCord;
-	
+
 	/**
-	 * ImageView
-	 * A backview that holds selected image by user
+	 * ImageView A backview that holds selected image by user
 	 */
 	ImageView backView;
-	
+
 	/**
 	 * A default bitmap that holds chosen image by user
 	 */
 	Bitmap bmp;
-	
+
 	/**
 	 * Points where user touches
 	 */
 	Point p = new Point();
-	
+
 	/**
 	 * User Mode Drawing
 	 */
 	UserModeDrawing umd;
-	
+
 	/**
-	 * Whole View where we are showing everything, except
-	 * menus
+	 * Whole View where we are showing everything, except menus
 	 */
 	public static RelativeLayout userView;
-	
+
 	/**
 	 * Alert Dialog with options that user will select
 	 */
@@ -112,6 +110,11 @@ public class UserMode extends Activity {
 	 * Camera and Gallery Intnet Request
 	 */
 	private final int SELECT_PICTURE = 100, CAMERA_REQUEST = 101;
+
+	/**
+	 * File URI Camera image taken path
+	 */
+	private Uri fileUri;
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -190,7 +193,9 @@ public class UserMode extends Activity {
 	}
 
 	protected void callTehCamIntent() {
-		Intent camInt = new Intent("android.media.action.IMAGE_CAPTURE");
+		Intent camInt = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		Uri uri = Uri.parse("file:///sdcard/photo.jpg");
+		camInt.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, uri);
 		startActivityForResult(camInt, CAMERA_REQUEST);
 
 	}
@@ -210,22 +215,41 @@ public class UserMode extends Activity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (resultCode == RESULT_OK) {
+			
 			switch (requestCode) {
 			case SELECT_PICTURE:
 				onButtonPressed(data);
 
 				break;
 			case CAMERA_REQUEST:
-				onButtonPressed(data);
+				forCamera();
 				break;
 			}
 		}
 
 	}
+	
+	private void forCamera(){
+		  File file = new File(Environment.getExternalStorageDirectory().getPath(), "photo.jpg");
+          Uri uri = Uri.fromFile(file);
+          Bitmap bitmap;
+          try {
+              bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+             // bitmap = crupAndScale(bitmap, 300); // if you mind scaling
+             // pofileImageView.setImageBitmap(bitmap);
+              afterGettingBmp(bitmap);
+          } catch (FileNotFoundException e) {
+              // TODO Auto-generated catch block
+              e.printStackTrace();
+          } catch (IOException e) {
+              // TODO Auto-generated catch block
+              e.printStackTrace();
+          }
+	}
 
 	private void onButtonPressed(Intent data) {
-		Uri image = data.getData();
-		if (image != null) {
+		if (data != null) {
+			Uri image = data.getData();
 			try {
 				bmp = Images.Media.getBitmap(getContentResolver(), image);
 			} catch (FileNotFoundException e) {
@@ -233,9 +257,6 @@ public class UserMode extends Activity {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		} else {
-			Bundle bundle = data.getExtras();
-			bmp = ( Bitmap ) bundle.get("data");
 		}
 		
 		afterGettingBmp(bmp);
