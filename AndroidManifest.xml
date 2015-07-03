@@ -20,9 +20,9 @@
         android:allowBackup="true"
         android:hardwareAccelerated="false"
         android:icon="@drawable/precolorvisulizericon"
-        android:label="Pre Color Visualizer" 
         android:largeHeap="true"
-        >
+        android:label="Pre Color Visualizer" >
+
         <activity
             android:name="com.finalyearproject.precolorvisualizer.MainActivity"
             android:configChanges="keyboardHidden"
